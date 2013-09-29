@@ -1,7 +1,6 @@
 package calculator
 
 import (
-	"errors"
 	"regexp"
 	"strconv"
 )
@@ -16,6 +15,7 @@ const (
 	t_white_space token_type = iota
 	t_literal_number
 	t_plus
+	t_garbage
 )
 
 type Token struct {
@@ -23,18 +23,17 @@ type Token struct {
 	Type   token_type
 }
 
-func Lex(input string) ([]Token, error) {
+func Lex(input string, c chan Token) {
 	if white_space_regex.MatchString(input) {
-		return []Token{{input, t_white_space}}, nil
+		c <- Token{input, t_white_space}
+	} else if literal_number_regex.MatchString(input) {
+		c <- Token{input, t_literal_number}
+	} else if plus_regex.MatchString(input) {
+		c <- Token{input, t_plus}
+	} else {
+		c <- Token{input, t_garbage}
 	}
-	if literal_number_regex.MatchString(input) {
-		return []Token{{input, t_literal_number}}, nil
-	}
-	if plus_regex.MatchString(input) {
-		return []Token{{input, t_plus}}, nil
-	}
-
-	return nil, errors.New("Input not recognized")
+	close(c)
 }
 
 func Parse(input string) (int64, error) {
