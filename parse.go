@@ -1,6 +1,7 @@
 package calculator
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 )
@@ -23,7 +24,17 @@ type Token struct {
 }
 
 func Lex(input string) ([]Token, error) {
-	return []Token{}, nil
+	if white_space_regex.MatchString(input) {
+		return []Token{{input, t_white_space}}, nil
+	}
+	if literal_number_regex.MatchString(input) {
+		return []Token{{input, t_literal_number}}, nil
+	}
+	if plus_regex.MatchString(input) {
+		return []Token{{input, t_plus}}, nil
+	}
+
+	return nil, errors.New("Input not recognized")
 }
 
 func Parse(input string) (int64, error) {
