@@ -24,14 +24,23 @@ type Token struct {
 }
 
 func Lex(input string, c chan Token) {
-	if white_space_regex.MatchString(input) {
-		c <- Token{input, t_white_space}
-	} else if literal_number_regex.MatchString(input) {
-		c <- Token{input, t_literal_number}
-	} else if plus_regex.MatchString(input) {
-		c <- Token{input, t_plus}
-	} else {
-		c <- Token{input, t_garbage}
+	for len(input) > 0 {
+		if white_space_regex.MatchString(input) {
+			match := white_space_regex.FindString(input)
+			c <- Token{match, t_white_space}
+			input = input[len(match):]
+		} else if literal_number_regex.MatchString(input) {
+			match := literal_number_regex.FindString(input)
+			c <- Token{match, t_literal_number}
+			input = input[len(match):]
+		} else if plus_regex.MatchString(input) {
+			match := plus_regex.FindString(input)
+			c <- Token{match, t_plus}
+			input = input[len(match):]
+		} else {
+			c <- Token{input, t_garbage}
+			input = input[len(input):]
+		}
 	}
 	close(c)
 }
