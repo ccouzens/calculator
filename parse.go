@@ -45,6 +45,18 @@ func Lex(input string, c chan Token) {
 	close(c)
 }
 
+func LexWithoutWhiteSpace(input string, output chan Token) {
+	ch := make(chan Token)
+	go Lex(input, ch)
+	for token := range ch {
+		if token.Type != t_white_space {
+			output <- token
+		}
+	}
+	close(output)
+
+}
+
 func Parse(input string) (int64, error) {
 
 	return strconv.ParseInt(input, 10, 64)

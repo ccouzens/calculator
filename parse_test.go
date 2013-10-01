@@ -62,6 +62,31 @@ func TestLexCompound(t *testing.T) {
 	}
 }
 
+func TestLexWithoutWhiteSpaceCompound(t *testing.T) {
+	const in = "3 + 28"
+	var out = []Token{
+		{"3", t_literal_number},
+		{"+", t_plus},
+		{"28", t_literal_number},
+	}
+
+	const length = 3
+	ch := make(chan Token)
+	go LexWithoutWhiteSpace(in, ch)
+
+	for i := 0; i < length; i++ {
+		x, ok := <-ch
+		if !ok {
+			t.Errorf("Expected Lex(%v)[%d] to exist", in, i)
+			return
+		} else if x != out[i] {
+			t.Errorf("Lex(%v)[%d] = %v, want %v", in, i, x, out[i])
+			return
+		}
+
+	}
+}
+
 func TestParseLiteral(t *testing.T) {
 	const in, out = "45", 45
 	x, err := Parse(in)
